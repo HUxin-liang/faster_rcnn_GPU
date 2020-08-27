@@ -26,6 +26,14 @@ def bbox2loc(src_bbox, dst_bbox):
     return loc
 
 def loc2bbox(src_bbox, loc):
+    '''
+    已知anchor和预测的偏差，返回目标框
+    :param src_bbox: anchor [feature, 9, 4]
+    :param loc:位置偏差
+    [n_anchor*4, feature, ]
+    每个特征网格上默认先验框的数量n_chaor=anchor_base.shape[0]=9
+    :return:
+    '''
     if src_bbox.shape[0] == 0:
         return np.zeros((0, 4), dtype=loc.dtype)
 
@@ -56,11 +64,16 @@ def loc2bbox(src_bbox, loc):
 def nms(detections_class, nms_thres=0.7):
     max_detections = []
     while np.shape(detections_class)[0]:
-        # 取出这一类置信度最高的
-        max_detections.append(np.expand_dims(detections_class[0],0))
+        # 取出这一类置信度最高的，一步一步往下判断，判断重合程度是否大于nms_thres，如果是则去除掉
+        max_detections.append(np.expand_dims(detections_class[0], 0))
         if len(detections_class) == 1:
             break
-        ious =
+        ious = bbox_iou(max_detections[-1][:, :4], detections_class[1:, :4])[0]
+        detections_class = detections_class[1:][ious < nms_thres]
+    if len(max_detections) == 0:
+        return []
+    max_detections = np.concatenate(max_detections, axis=0)
+    return max_detections
 
 
 def bbox_iou(bbox_a, bbox_b):

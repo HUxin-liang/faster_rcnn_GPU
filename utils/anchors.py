@@ -2,6 +2,12 @@ import numpy as np
 
 def generate_anchor_base(base_size=16, rations=[0.5, 1, 2],
                          anchor_scales=[8, 16, 32]):
+    '''
+    :param base_size: 16是对应原图16*16个像素点区域
+    :param rations:
+    :param anchor_scales: [8,16,32]是针对特征图的
+    :return:每个特征点的anchor_base，[9,4]
+    '''
     anchor_base = np.zeros((len(rations)*len(anchor_scales),4),
                            dtype=np.float32)
 
@@ -18,6 +24,14 @@ def generate_anchor_base(base_size=16, rations=[0.5, 1, 2],
         return anchor_base
 
 def _enmuerate_shifted_anchor(anchor_base, feat_stride, height, width):
+    '''
+    生成所有特征点的anchor
+    :param anchor_base:
+    :param feat_stride:
+    :param height:
+    :param width:
+    :return: anchor:[feature, 9, 4]
+    '''
     # 计算网格中心点
     shift_x = np.arange(0, width * feat_stride, feat_stride)
     shift_y = np.arange(0, height * feat_stride, feat_stride)
